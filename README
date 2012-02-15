@@ -1,0 +1,2 @@
+A multimethod implementation, loosely based on Guido's initial 'Five-minute Multimethods in Python' : http://www.artima.com/weblogs/viewpost.jsp?thread=101605
+This implementation supports instance methods as well as a condition based dispatch.
