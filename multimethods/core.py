@@ -690,8 +690,7 @@ def _decorate_multimethod(
     caller_locals = _caller_locals()
     homonym = None if caller_locals is None else caller_locals.get(raw_function.__name__)
 
-    existing, existing_wrapper = _extract_dispatcher(homonym)
-    wrapper = wrapper or existing_wrapper
+    existing, _ = _extract_dispatcher(homonym)
 
     dispatcher = existing or MultiMethod(
         raw_function,

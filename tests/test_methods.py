@@ -42,6 +42,8 @@ def test_staticmethod_supports_repeated_same_name_registration() -> None:
         def render(value: str):
             return "str"
 
+    assert isinstance(Example.__dict__["render"], staticmethod)
+    assert not isinstance(Example.__dict__["render"].__func__, staticmethod)
     assert Example.render(1) == "int"
     assert Example.render("x") == "str"
 
@@ -60,6 +62,8 @@ def test_classmethod_supports_repeated_same_name_registration() -> None:
         def build(cls, value: str):
             return f"{cls.label}:str"
 
+    assert isinstance(Example.__dict__["build"], classmethod)
+    assert not isinstance(Example.__dict__["build"].__func__, classmethod)
     assert Example.build(1) == "example:int"
     assert Example.build("x") == "example:str"
 

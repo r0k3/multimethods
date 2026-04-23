@@ -94,7 +94,7 @@ The mental model is simple:
 3. let runtime types decide which one wins
 4. get an explicit error if the winner is genuinely unclear
 
-## Meaningful Examples
+## Examples
 
 ### 1. Dispatch On Two Real Axes
 
@@ -364,10 +364,3 @@ python -m pytest -q
 python -m build
 python benchmarks/compare_dispatch.py
 ```
-
-## Design Notes
-
-The rewrite plan and design decisions used for this version live in:
-
-- [research_multimethods_revival/research_plan.md](research_multimethods_revival/research_plan.md)
-- [research_multimethods_revival/design_spec.md](research_multimethods_revival/design_spec.md)
