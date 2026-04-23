@@ -1,8 +1,19 @@
 <p align="center">
-  <img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-0f6cbd.svg">
-  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-111111.svg">
-  <img alt="Typed package" src="https://img.shields.io/badge/typing-py.typed-0a7f5a.svg">
-  <img alt="No runtime deps" src="https://img.shields.io/badge/runtime_deps-zero-c4512d.svg">
+  <a href="https://pypi.org/project/multimethods/">
+    <img alt="PyPI version" src="https://img.shields.io/pypi/v/multimethods">
+  </a>
+  <a href="https://pypi.org/project/multimethods/">
+    <img alt="PyPI Python versions" src="https://img.shields.io/pypi/pyversions/multimethods">
+  </a>
+  <a href="https://github.com/r0k3/multimethods/actions/workflows/ci.yml">
+    <img alt="CI status" src="https://github.com/r0k3/multimethods/actions/workflows/ci.yml/badge.svg">
+  </a>
+  <a href="https://github.com/r0k3/multimethods/actions/workflows/pypi-publish.yml">
+    <img alt="Publish status" src="https://github.com/r0k3/multimethods/actions/workflows/pypi-publish.yml/badge.svg">
+  </a>
+  <a href="LICENSE">
+    <img alt="License" src="https://img.shields.io/pypi/l/multimethods">
+  </a>
 </p>
 
 <h1 align="center">multimethods</h1>
