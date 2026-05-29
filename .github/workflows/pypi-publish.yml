@@ -57,6 +57,8 @@ jobs:
       url: https://test.pypi.org/p/multimethods
     permissions:
       id-token: write
+      contents: read
+      attestations: write
 
     steps:
       - name: Download distributions
@@ -69,6 +71,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
 
   publish-pypi:
     name: Publish to PyPI
@@ -80,6 +83,8 @@ jobs:
       url: https://pypi.org/p/multimethods
     permissions:
       id-token: write
+      contents: read
+      attestations: write
 
     steps:
       - name: Download distributions
