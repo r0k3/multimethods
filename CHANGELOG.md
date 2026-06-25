@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.0] - 2026-06-25
+
+### Added
+
+- PyPI project URLs (Repository, Issues, Changelog)
+- README comparison with alternative dispatch libraries
+- README documentation for `.dispatch()`, `.registry`, and `.copy()`
+- README type checker integration guide using `typing.overload`
+- Tests for introspection APIs, ABC dispatch, union ambiguity, and subclass overload inheritance
+
 ## [2.0.1] - 2026-06-01
 
 Complete rewrite of the library for modern Python 3.12+.
