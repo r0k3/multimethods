@@ -366,6 +366,130 @@ If first-argument dispatch is enough, `functools.singledispatch` is still excell
 
 This library is for the cases after that.
 
+## Comparison with alternatives
+
+Python has several dispatch options. `multimethods` targets the gap after
+`functools.singledispatch`: multi-argument problems that still need predictable
+semantics and ordinary method behavior.
+
+| Library | Multi-arg | Zero deps | Explicit ambiguity | Callable guards | OOP MRO fallback |
+| --- | --- | --- | --- | --- | --- |
+| `functools.singledispatch` | no | yes (stdlib) | N/A | no | no |
+| `multimethod` (coady) | limited | yes | partial | no | no |
+| `multipledispatch` | yes | yes | often wrong | string `eval` | no |
+| `plum` | yes | no (beartype) | yes | via beartype | yes |
+| `ovld` | yes | varies | varies | pattern-style | varies |
+| **`multimethods`** | **yes** | **yes** | **yes** | **yes** | **yes** |
+
+**When `singledispatch` is enough:** one dispatch axis, stdlib-only, excellent
+ergonomics. Stay there.
+
+**When `multipledispatch` is tempting:** broad adoption and raw speed, but
+ambiguity handling and OOP fallback are weaker for production rule systems.
+
+**When `plum` is tempting:** richest typing integration (parametric types,
+beartype-powered hints). Choose it when you want that breadth and accept the
+dependency.
+
+**When `ovld` is tempting:** fastest microbenchmarks and a pattern-matching
+style API. Choose it when codegen speed matters more than Julia-like ambiguity
+rules.
+
+**When `multimethods` fits:** you want zero-dependency multiple dispatch with
+explicit ambiguity errors, callable guards, and subclass MRO fallback without
+adopting a larger typing framework.
+
+## Introspection API: `.dispatch()`, `.registry`, `.copy()`
+
+Every `MultiMethod` exposes three helpers for debugging, tooling, and extension.
+
+### `.dispatch(*args, **kwargs)`
+
+Resolve the winning overload without calling it. Returns the underlying function.
+
+```python
+from multimethods import multimethod
+
+
+@multimethod
+def convert(value: object) -> str:
+    return str(value)
+
+
+@convert.register
+def _(value: int) -> str:
+    return f"int:{value}"
+
+
+fn = convert.dispatch(3)
+assert fn is convert.registry[1].function
+assert fn(3) == "int:3"
+assert convert(3) == "int:3"
+```
+
+### `.registry`
+
+Read-only view of registered overloads after pending forward references resolve.
+
+```python
+assert len(convert.registry) == 2
+assert all(hasattr(entry, "constraints") for entry in convert.registry)
+```
+
+### `.copy()`
+
+Clone the dispatcher and its overload table. Caches start empty on the clone.
+
+```python
+clone = convert.copy()
+assert clone is not convert
+assert len(clone.registry) == len(convert.registry)
+assert clone(3) == convert(3)
+```
+
+## Type checker integration
+
+Runtime dispatch is dynamic; static type checkers need explicit stubs. Pair
+`@multimethod` overloads with `typing.overload` declarations that share the same
+name and parameter shapes.
+
+```python
+from typing import overload
+
+from multimethods import multimethod
+
+
+@overload
+def stringify(value: int) -> str: ...
+
+
+@overload
+def stringify(value: str) -> str: ...
+
+
+@multimethod
+def stringify(value: object) -> str:
+    return str(value)
+
+
+@stringify.register
+def _(value: int) -> str:
+    return f"int:{value}"
+
+
+@stringify.register
+def _(value: str) -> str:
+    return f"str:{value}"
+```
+
+mypy and pyright use the `@overload` stubs for call-site checking; Python uses
+the `@multimethod` registrations at runtime. Keep stub signatures aligned with
+the dispatch parameters of each registered overload.
+
+Unsupported runtime annotations such as `Literal[...]`, `list[int]`, and `Protocol`
+are rejected at registration time. Use plain classes plus `guard=` or
+`Annotated[..., where(...)]` for value refinement instead.
+
 ## Development
 
 ```bash
