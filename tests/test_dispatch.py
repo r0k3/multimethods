@@ -229,3 +229,31 @@ def test_subclass_can_add_overloads_and_inherit_parent_matches() -> None:
 
     assert child.fn(True) == "child-bool"
     assert child.fn(1) == "parent-int"
+
+
+def test_later_overload_with_same_parameter_layout_uses_exact_type_cache() -> None:
+    @multimethod
+    def join(x: int, y: int) -> str:
+        return "int"
+
+    @join.register
+    def _(x: str, y: str) -> str:
+        return "str"
+
+    assert join("a", "b") == "str"
+    assert join._exact_cache[(str, str)] is join.registry[1]
+    assert join("a", "b") == "str"
+
+
+def test_overload_with_different_parameter_layout_is_still_bound() -> None:
+    @multimethod
+    def collect(x: object, *rest: object) -> str:
+        return "object"
+
+    @collect.register
+    def _(x: int) -> str:
+        return "int"
+
+    assert collect(1) == "int"
+    assert collect(1, 2) == "object"
+    assert (int,) not in collect._exact_cache

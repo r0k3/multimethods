@@ -13,6 +13,10 @@ All notable changes to this project are documented in this file.
 
 - Python 3.14+: an unquoted forward reference in the first overload no longer raises
   `NameError` at decoration time; it resolves on first call like later overloads
+- Overloads registered after the first now use the exact-type cache when their parameter
+  layout matches; previously differing annotations alone excluded them, making those calls
+  roughly 8x slower. Calling such an overload with the wrong number of arguments now raises
+  `TypeError`, as the first overload already did, instead of `NoMatchError`
 
 ## [2.1.0] - 2026-06-25
 

@@ -596,7 +596,7 @@ class MultiMethod:
         needs_binding = (
             bool(parameter_guards)
             or guard is not None
-            or signature != self._canonical_signature
+            or _without_annotations(signature) != _without_annotations(self._canonical_signature)
             or _has_non_dispatch_tail(
                 signature,
                 dispatch_count=len(self._canonical_dispatch_params),
@@ -938,6 +938,16 @@ def _has_non_dispatch_tail(
             inspect.Parameter.KEYWORD_ONLY,
         }
         for parameter in tail
+    )
+
+
+def _without_annotations(signature: inspect.Signature) -> inspect.Signature:
+    # Overloads differ in annotations by design; only the parameter layout affects binding.
+    return signature.replace(
+        parameters=[
+            parameter.replace(annotation=_EMPTY) for parameter in signature.parameters.values()
+        ],
+        return_annotation=_EMPTY,
     )
 
 

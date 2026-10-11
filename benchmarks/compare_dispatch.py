@@ -44,7 +44,9 @@ def build_ours() -> dict[str, Any]:
         return x + y
 
     one(1)
+    one("x")
     two(1, 2)
+    two("x", "y")
     return {"ours_one": one, "ours_two": two}
 
 
@@ -184,6 +186,8 @@ def main() -> None:
     benchmarks = [
         Benchmark("ours-1", "ours_one(1)"),
         Benchmark("ours-2", "ours_two(1, 2)"),
+        Benchmark("ours-1-later", 'ours_one("x")'),
+        Benchmark("ours-2-later", 'ours_two("x", "y")'),
         Benchmark("multimethod-1", "mm_one(1)"),
         Benchmark("multimethod-2", "mm_two(1, 2)"),
         Benchmark("multidispatch-1", "mmd_one(1)"),
