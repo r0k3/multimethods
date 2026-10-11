@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import sys
 import typing
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -19,6 +20,17 @@ _DISPATCH_KINDS = {
     inspect.Parameter.POSITIONAL_OR_KEYWORD,
 }
 _METHOD_NAMES = {"self", "cls"}
+
+if sys.version_info >= (3, 14):
+    import annotationlib
+
+    def _signature(obj: Callable[..., Any]) -> inspect.Signature:
+        # PEP 649 annotations are lazy; FORWARDREF keeps not-yet-defined names from
+        # raising here so type hint resolution can defer the registration instead.
+        return inspect.signature(obj, annotation_format=annotationlib.Format.FORWARDREF)
+
+else:
+    _signature = inspect.signature
 
 
 @dataclass(frozen=True, slots=True)
@@ -208,7 +220,7 @@ class MultiMethod:
         self._cache: dict[tuple[type, ...], tuple[Registration, ...]] = {}
         self._exact_cache: dict[tuple[type, ...], Registration] = {}
 
-        self._canonical_signature = inspect.signature(function)
+        self._canonical_signature = _signature(function)
         self._drops_leading_argument = _drops_leading_argument(self._canonical_signature)
         self._canonical_dispatch_params = _select_dispatch_parameters(
             self._canonical_signature,
@@ -572,7 +584,7 @@ class MultiMethod:
         priority: int,
         localns: dict[str, Any] | None,
     ) -> Registration:
-        signature = inspect.signature(function)
+        signature = _signature(function)
         dispatch_params = _select_dispatch_parameters(
             signature,
             explicit_count=len(self._canonical_dispatch_params),
@@ -626,9 +638,9 @@ class MultiMethod:
         constraints: list[TypeConstraint] = []
         parameter_guards: list[ParameterGuard] = []
         for parameter in _select_dispatch_parameters(
-            inspect.signature(function),
+            _signature(function),
             explicit_count=len(self._canonical_dispatch_params),
-            drop_leading=_drops_leading_argument(inspect.signature(function)),
+            drop_leading=_drops_leading_argument(_signature(function)),
         ):
             if parameter.name not in hints:
                 raise RegistrationError(
@@ -889,7 +901,7 @@ def _normalize_union(values: Sequence[Any]) -> TypeConstraint:
 
 
 def _invoke_guard(guard: Guard, bound: inspect.BoundArguments) -> bool:
-    signature = inspect.signature(guard)
+    signature = _signature(guard)
     parameters = list(signature.parameters.values())
     if not parameters:
         return bool(guard())
