@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Python 3.14 and 3.15 support, with trove classifiers and CI coverage
+- Publish workflow tests the built wheel on Python 3.12-3.15 before uploading
+
+### Fixed
+
+- Python 3.14+: an unquoted forward reference in the first overload no longer raises
+  `NameError` at decoration time; it resolves on first call like later overloads
+
 ## [2.1.0] - 2026-06-25
 
 ### Added

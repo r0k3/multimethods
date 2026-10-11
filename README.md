@@ -68,7 +68,7 @@ It gives you:
 python -m pip install multimethods
 ```
 
-Requires Python `3.12+`.
+Requires Python `3.12+`. Tested on CPython 3.12, 3.13, 3.14, and 3.15.
 
 ## A 30-Second Taste
 
@@ -321,6 +321,8 @@ Keyword-only parameters and variadic parameters are allowed, but they never part
 - `typing.Any`
 - unions of supported classes, including `int | str`
 - `typing.Annotated[T, where(...)]`
+- forward references to classes defined later, resolved on first call (string annotations,
+  `from __future__ import annotations`, or plain names under Python 3.14+ lazy annotations)
 - annotation-based registration
 - explicit decorator registration like `@multimethod(int, str)`
 
