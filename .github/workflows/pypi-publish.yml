@@ -47,10 +47,45 @@ jobs:
           name: python-package-distributions
           path: dist/
 
+  test-dist:
+    name: Test wheel on Python ${{ matrix.python-version }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
+
+    steps:
+      # Sparse checkout leaves out the package source so tests import the installed wheel.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tests
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Install wheel
+        run: python -m pip install dist/*.whl pytest
+
+      - name: Verify installed package is under test
+        run: python -c "import multimethods; assert 'site-packages' in multimethods.__file__, multimethods.__file__"
+
+      - name: Test
+        run: python -m pytest -q
+
   publish-testpypi:
     name: Publish to TestPyPI
     if: github.event_name == 'workflow_dispatch' && inputs.repository == 'testpypi'
-    needs: build
+    needs: [build, test-dist]
     runs-on: ubuntu-latest
     environment:
       name: testpypi
@@ -76,7 +111,7 @@ jobs:
   publish-pypi:
     name: Publish to PyPI
     if: github.event_name == 'release' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.repository == 'pypi')
-    needs: build
+    needs: [build, test-dist]
     runs-on: ubuntu-latest
     environment:
       name: pypi
